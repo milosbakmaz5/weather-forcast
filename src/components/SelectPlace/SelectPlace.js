@@ -1,7 +1,10 @@
+import { useRef, useState, useEffect } from "react";
+import _ from "lodash";
 import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
-import { useEffect } from "react";
 
-export default () => {
+import styles from "./SelectPlace.module.scss";
+
+export default ({ onSelectPlace }) => {
   const {
     placesService,
     placePredictions,
@@ -10,26 +13,79 @@ export default () => {
   } = usePlacesService({
     apiKey: process.env.REACT_APP_GOOGLE_API_KEY,
   });
+  const [inputValue, setInputValue] = useState("");
+  const [showPlacePredictions, setShowPlacePredictions] = useState(false);
+  const container = useRef();
 
   useEffect(() => {
-    // fetch place details for the first element in placePredictions array
-    if (placePredictions.length)
-      placesService.placesService?.getDetails({
-        placeId: placePredictions[0].place_id,
-      });
-  }, [placePredictions]);
+    const handler = (event) => {
+      if (!container.current.contains(event.target)) {
+        setShowPlacePredictions(false);
+      }
+    };
+    document.addEventListener("click", handler);
+    return () => {
+      document.removeEventListener("click", handler);
+    };
+  });
+
+  const getPlaceDetails = (placeId) => {
+    placesService?.getDetails(
+      {
+        placeId,
+      },
+      (placeDetails) =>
+        onSelectPlace({
+          lat: placeDetails.geometry.location.lat(),
+          lon: placeDetails.geometry.location.lng(),
+        })
+    );
+  };
+
+  const selectPlaceHandler = (item, index) => {
+    getPlaceDetails(placePredictions[index].place_id);
+    setInputValue(item.description);
+    getPlacePredictions({ input: item.description });
+    setShowPlacePredictions(false);
+  };
+
+  const renderInputField = () => (
+    <input
+      value={inputValue}
+      placeholder="Please enter your location..."
+      spellCheck={false}
+      onChange={(evt) => {
+        setInputValue(evt.target.value);
+        getPlacePredictions({ input: evt.target.value });
+      }}
+      onFocus={() => {
+        if (!showPlacePredictions) setShowPlacePredictions(true);
+      }}
+      loading={isPlacePredictionsLoading.toString()}
+    />
+  );
+
+  const renderPlacePredictions = () =>
+    showPlacePredictions && (
+      <div
+        className={styles.placesWrapper}
+        onBlur={() => setShowPlacePredictions(false)}
+      >
+        {_.map(placePredictions, (item, index) => (
+          <p
+            key={item.description}
+            onClick={() => selectPlaceHandler(item, index)}
+          >
+            {item.description}
+          </p>
+        ))}
+      </div>
+    );
+
   return (
-    <>
-      <input
-        placeholder="Debounce 500 ms"
-        onChange={(evt) => {
-          getPlacePredictions({ input: evt.target.value });
-        }}
-        loading={isPlacePredictionsLoading}
-      />
-      {placePredictions.map((item) => (
-        <p>{item.description}</p>
-      ))}
-    </>
+    <div ref={container} className={styles.container}>
+      {renderInputField()}
+      {renderPlacePredictions()}
+    </div>
   );
 };

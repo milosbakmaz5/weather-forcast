@@ -110,7 +110,14 @@ export const restructureWeatherForcastData = (data) => {
     weatherFocastByDays[date] = {};
     weatherFocastByDays[date].temperatures = [];
     weatherFocastByDays[date].temperatures.push(element.main.temp);
-    weatherFocastByDays[date].dayInWeek = moment(datetime).format("dddd");
+    weatherFocastByDays[date].dayInWeek = moment(datetime)
+      .format("dddd")
+      .toUpperCase();
+    weatherFocastByDays[date].month = moment(datetime)
+      .format("MMM")
+      .toUpperCase();
+    weatherFocastByDays[date].day = moment(datetime).format("D");
+    weatherFocastByDays[date].year = moment(datetime).format("YYYY");
   });
   Object.entries(weatherFocastByDays).forEach(([key, value]) => {
     weatherFocastByDays[key].avgTemp = Math.round(
@@ -118,9 +125,31 @@ export const restructureWeatherForcastData = (data) => {
     );
     delete weatherFocastByDays[key].temperatures;
   });
-  return Object.fromEntries(Object.entries(weatherFocastByDays).slice(0, 5));
+  return Object.values(weatherFocastByDays).slice(0, 5);
+  // return Object.fromEntries(Object.entries(weatherFocastByDays).slice(0, 5));
 };
 
-export const getAverageTemperature = (obj) => {
-  return Math.round(_.meanBy(Object.values(obj), "avgTemp"));
+export const getAverageTemperature = (days) => {
+  if (_.isEmpty(days)) return;
+  return Math.round(_.meanBy(days, "avgTemp"));
+};
+
+export const formatDatesOfWeatherForcast = (dates) => {
+  if (_.isEmpty(dates)) return;
+  const lastMonth =
+    dates[0].month == dates[dates.length - 1].month
+      ? ""
+      : dates[dates.length - 1].month;
+  const firstYear =
+    dates[0].year == dates[dates.length - 1].year ? "" : " " + dates[0].year;
+
+  const firstDate = dates[0].month + " " + dates[0].day + firstYear;
+  const lastDate =
+    lastMonth +
+    " " +
+    dates[dates.length - 1].day +
+    " " +
+    dates[dates.length - 1].year;
+
+  return firstDate + " - " + lastDate;
 };

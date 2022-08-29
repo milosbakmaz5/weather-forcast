@@ -1,42 +1,51 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import _ from "lodash";
+
+import { getWeatherForcastData } from "../shared/services";
+import { getAverageTemperature, getBackgroundGradient } from "../shared/util";
+
 import SelectPlace from "../components/SelectPlace/SelectPlace";
-import { getCityCoordinate, getWeatherForcastData } from "../shared/services";
-import { getAverageTemperature } from "../shared/util";
+
+import styles from "./Home.module.scss";
+import WeatherForcast from "../components/WeatherForcast/WeatherForcast";
 
 export default () => {
   const [error, setError] = useState();
-  const [coordinates, setCoordinates] = useState();
+  const [weatherForcast, setWeatherForcast] = useState();
+  const [avgTemp, setAvgTemp] = useState(20);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { lon, lat } = await getCityCoordinate("Belgrade");
-        console.log(lon, lat);
-        setCoordinates({ lon, lat });
-        console.log(lon, lat);
-      } catch (error) {
-        setError(true);
-      }
-    })();
-  }, []);
+  const fetchWeatherForcast = async ({ lat, lon }) => {
+    try {
+      const data = await getWeatherForcastData(lat, lon);
+      setWeatherForcast(data);
+      setAvgTemp(getAverageTemperature(data));
+    } catch (error) {
+      setError(true);
+    }
+  };
 
-  useEffect(() => {
-    if (!coordinates) return;
-    (async () => {
-      try {
-        const weatherForcastByDays = await getWeatherForcastData(
-          coordinates.lat,
-          coordinates.lon
-        );
-        console.log(weatherForcastByDays);
-        console.log(getAverageTemperature(weatherForcastByDays));
-      } catch (error) {
-        setError(true);
-      }
-    })();
-  }, [coordinates]);
+  const renderSelect = () => (
+    <SelectPlace onSelectPlace={fetchWeatherForcast} />
+  );
+
+  const renderForcast = () => {
+    if (_.isEmpty(weatherForcast)) return;
+    return (
+      <WeatherForcast forcast={weatherForcast} averageTemperature={avgTemp} />
+    );
+  };
 
   if (error) return <p>Oops, something went wrong. Please try again!</p>;
 
-  return <SelectPlace />;
+  return (
+    <div
+      className={styles.container}
+      style={{
+        background: getBackgroundGradient(avgTemp),
+      }}
+    >
+      {renderSelect()}
+      {renderForcast()}
+    </div>
+  );
 };

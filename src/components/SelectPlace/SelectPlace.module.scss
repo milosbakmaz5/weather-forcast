@@ -1,0 +1,45 @@
+@import "../../shared/styles.scss";
+
+.container {
+  width: 350px;
+  max-width: 100%;
+  input {
+    width: 100%;
+    border-radius: 10px;
+    outline: none;
+    border: none;
+    padding: 10px;
+  }
+  input:hover {
+    box-shadow: $shadow;
+  }
+
+  .placesWrapper {
+    position: absolute;
+    width: inherit;
+    max-width: 90%;
+    max-height: 300px;
+    overflow-y: scroll;
+    margin-top: 10px;
+    backdrop-filter: blur(8px);
+    border-radius: 10px;
+    background-color: $transparent-white;
+
+    p {
+      color: $dark-blue;
+      font-size: 14px;
+      padding: 10px;
+      cursor: pointer;
+      margin: 0;
+    }
+    p:hover {
+      font-weight: bold;
+      font-weight: 500;
+      color: white;
+      background-color: $transparent-blue;
+    }
+  }
+  .placesWrapper::-webkit-scrollbar {
+    display: none;
+  }
+}
