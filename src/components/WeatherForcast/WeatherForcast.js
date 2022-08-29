@@ -4,8 +4,6 @@ import { formatDatesOfWeatherForcast } from "../../shared/util";
 import styles from "./WeatherForcast.module.scss";
 
 export default ({ forcast, averageTemperature }) => {
-  console.log(forcast, formatDatesOfWeatherForcast(forcast));
-
   return (
     <div className={styles.container}>
       <div className={styles.avgTempWrapper}>
