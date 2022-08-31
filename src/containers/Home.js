@@ -1,5 +1,5 @@
 import { useState } from "react";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 
 import { getWeatherForcastData } from "../shared/services";
 import { getAverageTemperature, getBackgroundGradient } from "../shared/util";
@@ -24,16 +24,12 @@ export default () => {
     }
   };
 
-  const renderSelect = () => (
+  const renderSelect = () =>
     <SelectPlace onSelectPlace={fetchWeatherForcast} />
-  );
 
-  const renderForcast = () => {
-    if (_.isEmpty(weatherForcast)) return;
-    return (
-      <WeatherForcast forcast={weatherForcast} averageTemperature={avgTemp} />
-    );
-  };
+  const renderForcast = () =>
+    !isEmpty(weatherForcast) &&
+    <WeatherForcast forcast={weatherForcast} averageTemperature={avgTemp} />
 
   if (error) return <p>Oops, something went wrong. Please try again!</p>;
 

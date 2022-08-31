@@ -137,11 +137,11 @@ export const getAverageTemperature = (days) => {
 export const formatDatesOfWeatherForcast = (dates) => {
   if (_.isEmpty(dates)) return;
   const lastMonth =
-    dates[0].month == dates[dates.length - 1].month
+    dates[0].month === dates[dates.length - 1].month
       ? ""
       : dates[dates.length - 1].month;
   const firstYear =
-    dates[0].year == dates[dates.length - 1].year ? "" : " " + dates[0].year;
+    dates[0].year === dates[dates.length - 1].year ? "" : " " + dates[0].year;
 
   const firstDate = dates[0].month + " " + dates[0].day + firstYear;
   const lastDate =
