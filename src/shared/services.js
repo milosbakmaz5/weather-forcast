@@ -4,8 +4,8 @@ import { restructureWeatherForcastData } from "./util";
 
 export const getWeatherForcastData = async (lat, lon) => {
   try {
-    const response = await axios.get(weatherForcastURL(lat, lon));
-    return restructureWeatherForcastData(response.data.list);
+    const { data: { list } = {} } = await axios.get(weatherForcastURL(lat, lon)) || {};
+    return restructureWeatherForcastData(list);
   } catch (error) {
     throw error;
   }

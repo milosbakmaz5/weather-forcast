@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import _ from "lodash";
+import map from "lodash/map";
 import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
 
 import styles from "./SelectPlace.module.scss";
@@ -54,12 +54,12 @@ export default ({ onSelectPlace }) => {
       value={inputValue}
       placeholder="Please enter your location..."
       spellCheck={false}
-      onChange={(evt) => {
-        setInputValue(evt.target.value);
-        getPlacePredictions({ input: evt.target.value });
+      onChange={({ target: { value }}) => {
+        setInputValue(value);
+        getPlacePredictions({ input: value });
       }}
       onFocus={() => {
-        if (!showPlacePredictions) setShowPlacePredictions(true);
+        !showPlacePredictions && setShowPlacePredictions(true);
       }}
       loading={isPlacePredictionsLoading.toString()}
     />
@@ -71,7 +71,7 @@ export default ({ onSelectPlace }) => {
         className={styles.placesWrapper}
         onBlur={() => setShowPlacePredictions(false)}
       >
-        {_.map(placePredictions, (item, index) => (
+        {map(placePredictions, (item, index) => (
           <p
             key={item.description}
             onClick={() => selectPlaceHandler(item, index)}
